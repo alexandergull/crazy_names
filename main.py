@@ -3,7 +3,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import re
-
+import time
 
 class Word:
     def __init__(self, word=''):
@@ -54,7 +54,7 @@ class Word:
                     current_twin = char
                     twins_iterator = 2
 
-    def check_word(self, lang_twins_dict, lang_trines_dict, twin_multiplicator, trine_multiplicator):
+    def check_word(self, lang_twins_dict, lang_trines_dict, twin_multiplier, trine_multiplier):
 
         if self.word:
 
@@ -70,27 +70,35 @@ class Word:
 
             word_length_multiplier = 12 * pow(x, power)
 
-            self.lexems_amount = word_length_multiplier * ((self.twins_amount * twin_multiplicator) + (
-                        self.trines_amount * trine_multiplicator))
+            self.lexems_amount = word_length_multiplier * ((self.twins_amount * twin_multiplier) + (
+                        self.trines_amount * trine_multiplier))
 
 
 class CrazyName:
 
-    def __init__(self, dict_filepath, sensitivity=1000, trine_multiplicator=50, twin_multiplicator=1):
+    def __init__(self, dict_filepath, sensitivity=1000, trine_multiplier=50, twin_multiplier=1):
         self.dict_filepath = dict_filepath
         self.dictionary_words_list = []
         self.twins_list = []
         self.trines_list = []
         self.twins_dict = {}
         self.trines_dict = {}
-        self.word_twins_list = []
-        self.word_trines_list = []
-        self.word_twins_amount = 0
-        self.word_trines_amount = 0
         self.sensitivity = sensitivity
-        self.trine_multiplicator = trine_multiplicator
-        self.twin_multiplicator = twin_multiplicator
+        self.trine_multiplier = trine_multiplier
+        self.twin_multiplier = twin_multiplier
         self.word_input_list = []
+
+    def filter_input_words_dict(self):
+        buffer_list = []
+        for word in self.word_input_list:
+            if not word.word.isascii():
+                if not word.word.isalnum():
+                    if not word.word.isspace()]
+
+
+            if any(checklist):
+                buffer_list.append(word)
+        self.word_input_list = buffer_list
 
     def init_dictionary_file(self):
         file = open(self.dict_filepath, 'r')
@@ -103,10 +111,14 @@ class CrazyName:
                 break
         file.close()
 
-        for word in clear_list:
-            result = word.replace('\n', '')
-            if result != '':
-                self.dictionary_words_list.append(result)
+        for dict_word in clear_list:
+            checklist = [not dict_word.isascii(), not dict_word.isalnum()]
+            if any(checklist):
+                result = dict_word.replace('\n', '')
+                if result != '':
+                    self.dictionary_words_list.append(result)
+
+        print(f'WORDS COUNT IN LANGUAGE:{len(self.dictionary_words_list)}')
 
     def collect_dictionary_lexems(self, strafe):
         for word in self.dictionary_words_list:
@@ -146,7 +158,6 @@ class CrazyName:
             if self.twins_dict[twin] > normal:
                 self.twins_dict[twin] = self.twins_dict[twin] // 3
 
-
     def calculate_dicts_in_dictionary(self):
         for twin in self.twins_list:
             if twin not in self.twins_dict:
@@ -175,21 +186,17 @@ class CrazyName:
         word_list = []
         while True:
             line = file.readline()
-            word_list.append(line)
+            self.word_input_list.append(Word(line))
             if not line:
                 break
         file.close()
 
-        for word in word_list:
-            if not word.count('http') and not word.count('.'):
-                result = word.replace('\n', '').replace('-', '').replace('_', '')
-                if result != '' and result not in self.word_input_list:
-                    self.word_input_list.append(Word(result))
+        self.filter_input_words_dict()
 
-        print(f'WORDS COUNT:{len(self.word_input_list)}')
+        print(f'WORDS COUNT IN FILE:{len(self.word_input_list)}')
 
         for word in self.word_input_list:
-            word.check_word(self.twins_dict, self.trines_dict, self.twin_multiplicator, self.trine_multiplicator)
+            word.check_word(self.twins_dict, self.trines_dict, self.twin_multiplier, self.trine_multiplier)
 
     def report_words_stat(self, show_odds_only=1, amount_gain_to_show=100):
         odd_words_total = 0
@@ -228,9 +235,11 @@ class CrazyName:
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    crazy = CrazyName(dict_filepath='utf.txt', sensitivity=200, trine_multiplicator=20, twin_multiplicator=1)
+    start_time = time.time()
+    crazy = CrazyName(dict_filepath='utf.txt', sensitivity=200, trine_multiplier=20, twin_multiplier=2)
     crazy.init_data()
-    crazy.check_word_list_from_file('utf.txt')
+    crazy.check_word_list_from_file('ct_usernames.txt')
     crazy.report_words_stat(show_odds_only=1, amount_gain_to_show=25)
+    print(f'EXEC TIME: {time.time()-start_time}')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
