@@ -16,8 +16,8 @@ if __name__ == '__main__':
         api = Api()
         api.run_console(cn_main=crazy, detailed=1)
     else:
-        crazy.check_word_list_from_file('ct_usernames.txt')
-        crazy.report_words_stat(show_odds_only=1, amount_gain_to_show=0)
+        crazy.bulk_check_words_from_file('ct_usernames.txt')
+        crazy.bulk_report_words_stat(show_odds_only=1, amount_gain_to_show=0)
     print(f'EXEC TIME: {time.time() - start_time}')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -1,4 +1,3 @@
-
 class Word:
     def __init__(self, word=''):
         self.word = word
@@ -12,21 +11,7 @@ class Word:
         self.alphabetical_frequency = 0
         self.normal_word_probability = 0
 
-    def report_word(self):
-        result = \
-            f'=================\n' + \
-            f'WORD: {self.word}\n' + \
-            f'TWINS: {self.twins_list}: TTL {self.twins_amount}\n' + \
-            f'DETECTED TWINS DICT: {self.twins_detected_dict}\n' + \
-            f'TRINES: {self.trines_list}: TTL {self.trines_amount}\n' + \
-            f'DETECTED TRINES DICT: {self.trines_detected_dict}\n' + \
-            f'AMOUNT: {self.lexems_amount}\n' + \
-            f'PROBABILITY THAT WORD IS FINE: {self.normal_word_probability}\n' + \
-            f'================='
-        print(result)
-        return result
-
-    def calculate_lexems(self, lang_twins_dict, lang_trines_dict):
+    def calculate_word_lexems(self, lang_twins_dict, lang_trines_dict):
 
         for twin in self.twins_list:
             if twin in lang_twins_dict.keys():
@@ -38,7 +23,7 @@ class Word:
                 self.trines_amount += lang_trines_dict[trine]
                 self.twins_detected_dict[trine] = lang_trines_dict[trine]
 
-    def collect_lexems(self, strafe):
+    def collect_word_lexems(self, strafe):
         # TODO добавить проверку четвёрок и пятёрок
         twins_iterator = 1
         trines_iterator = 1
@@ -65,7 +50,7 @@ class Word:
                     current_twin = char
                     twins_iterator = 2
 
-    def calculate_alphabetical_frequency(self, alphabet, alphabet_stats):
+    def calculate_word_alphabetical_frequency(self, alphabet, alphabet_stats):
 
         alphabet_stats_total_count = 0
         for char in self.word:
@@ -89,16 +74,15 @@ class Word:
         # TODO Разбить chek_word по функциям
         # TODO добавить все параметры аналитики в тело класса Word
 
-
         if self.word:
 
             self.word = self.word.replace('-', '')
 
-            self.collect_lexems(strafe=0)
-            self.collect_lexems(strafe=1)
-            self.collect_lexems(strafe=2)
+            self.collect_word_lexems(strafe=0)
+            self.collect_word_lexems(strafe=1)
+            self.collect_word_lexems(strafe=2)
 
-            self.calculate_lexems(lang_twins_dict, lang_trines_dict)
+            self.calculate_word_lexems(lang_twins_dict, lang_trines_dict)
 
             x = len(self.word)
 
@@ -109,7 +93,7 @@ class Word:
             self.lexems_amount = word_length_multiplier * ((self.twins_amount * twin_multiplier) + (
                     self.trines_amount * trine_multiplier))
 
-            self.calculate_alphabetical_frequency(alphabet, alphabet_stats)
+            self.calculate_word_alphabetical_frequency(alphabet, alphabet_stats)
 
             if self.alphabetical_frequency < word_chars_average_frequency:
                 alphabetical_multiplier = abs(word_chars_average_frequency - self.alphabetical_frequency)
@@ -145,3 +129,17 @@ class Word:
                 self.normal_word_probability = 100
             else:
                 self.normal_word_probability = 100 - ((sensitivity - self.lexems_amount) / (sensitivity / 100))
+
+    def report_word(self):
+        result = \
+            f'=================\n' + \
+            f'WORD: {self.word}\n' + \
+            f'TWINS: {self.twins_list}: TTL {self.twins_amount}\n' + \
+            f'DETECTED TWINS DICT: {self.twins_detected_dict}\n' + \
+            f'TRINES: {self.trines_list}: TTL {self.trines_amount}\n' + \
+            f'DETECTED TRINES DICT: {self.trines_detected_dict}\n' + \
+            f'AMOUNT: {self.lexems_amount}\n' + \
+            f'PROBABILITY THAT WORD IS FINE: {self.normal_word_probability}\n' + \
+            f'================='
+        print(result)
+        return result

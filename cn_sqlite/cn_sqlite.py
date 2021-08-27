@@ -146,31 +146,24 @@ class CnSQLite:
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def update_language_table(self, language_list):
+    def update_language_table(self, word):
         with self.connection:
             try:
                 cur = self.connection.cursor()
-                cur.executemany(
+                cur.execute(
                     """
-                    INSERT INTO language VALUES(?);
-                    """, language_list
+                    INSERT OR IGNORE INTO language(word_text) VALUES(?);
+                    """, (word,)
                 )
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
 
     def get_language_table(self):
-        with self.connection:
-            try:
-                cur = self.connection.cursor()
-                cur.execute(
-                    """
-
-                    """
-                )
-                self.connection.commit()
-            except Error as e:
-                print(f"The error '{e}' occurred")
+        read_query = """
+            SELECT word_text FROM language
+        """
+        return convert_tuples_list_to_string_list(self.execute_read_query(read_query))
 
     # ALPHABET TABLE
 
@@ -259,6 +252,12 @@ class CnSQLite:
     def db_test(self):
         self.create_language_table()
 
+
+def convert_tuples_list_to_string_list(tuples_list):
+    string_list = []
+    for record in list(tuples_list):
+        string_list.append(list(record)[0])
+    return string_list
 
 db = CnSQLite('cn_sqlite/crazynames.sqlite')
 # db.db_test()
