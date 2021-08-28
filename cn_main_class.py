@@ -1,6 +1,6 @@
-from cn_api import Api
 from cn_word import Word
-from cn_sqlite import cn_sqlite
+import cn_sqlite
+from icecream import ic
 
 
 class CrazyName:
@@ -22,7 +22,7 @@ class CrazyName:
         self.word_chars_average_frequency = 0
         self.db = cn_sqlite.db
 
-    # Database part
+    # DATABASE PART
 
     def add_dictionary_file_to_db(self):
         file = open(self.dict_filepath, 'r')
@@ -38,9 +38,18 @@ class CrazyName:
         for dict_word in clear_list:
             result = dict_word.replace('\n', '')
             if result != '':
-                self.db.update_language_table(result)
+                self.db.insert_language_words(result)
 
-    # collecting
+    def add_alphabet_to_db(self):
+        alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        alphabet += ['i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']
+        alphabet += ['q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        # ic(alphabet)
+        formatted_alphabet = list(map(lambda x: tuple(x), alphabet))
+        # ic(formatted_alphabet)
+        self.db.insert_alphabet_chars(formatted_alphabet)
+
+    # COLLECTING
 
     def collect_lang_lexems(self, strafe):
         for word in self.language_list:
@@ -75,14 +84,17 @@ class CrazyName:
 
                 # print(f'TRINES LIST {self.trines_list}')
 
-    # calculating
+    # CALCULATING
 
     def calculate_lang_alphabetic_frequency(self):
         # TODO Снижать слишком большие значения частоты симовлов и лексем
-        self.alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        self.alphabet += ['i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']
-        self.alphabet += ['q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+        # self.add_alphabet_to_db()
+
         self.alphabet_stats = {}
+
+        self.alphabet = self.db.select_alphabet_chars()
+
         for word in self.language_list:
             for char in word:
                 if self.alphabet.count(char):
@@ -98,6 +110,10 @@ class CrazyName:
         for char in self.alphabet_stats:
             char_percentage = self.alphabet_stats[char] / (alphabet_stats_total_count / 100)
             self.alphabet_stats.update({char: char_percentage})
+
+        formatted_alphabet = list(map(lambda x: tuple([x[0], x[1]]), self.alphabet_stats))
+
+        self.db.update_alphabet_frequency(formatted_alphabet)
 
         # print(f'ALPHA STATS:\n{self.alphabet_stats}')
 
@@ -130,7 +146,7 @@ class CrazyName:
     # INIT
 
     def init_language_list(self):
-        self.language_list = self.db.get_language_table()
+        self.language_list = self.db.select_language_words()
         print(f'WORDS COUNT IN LANGUAGE DB:{len(self.language_list)}')
         # print(f'LANGUAGE LIST DB:\n{self.language_list}')
 

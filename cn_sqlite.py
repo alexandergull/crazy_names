@@ -1,4 +1,5 @@
 import sqlite3
+from icecream import ic
 
 import sqlite3
 from sqlite3 import Error
@@ -32,6 +33,7 @@ class CnSQLite:
             path - path to sqlite database
         """
         try:
+            ic()
             self.connection = sqlite3.connect(path)
             print("Connection to SQLite DB successful")
         except Error as e:
@@ -146,7 +148,7 @@ class CnSQLite:
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def update_language_table(self, word):
+    def insert_language_words(self, word):
         with self.connection:
             try:
                 cur = self.connection.cursor()
@@ -159,7 +161,7 @@ class CnSQLite:
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def get_language_table(self):
+    def select_language_words(self):
         read_query = """
             SELECT word_text FROM language
         """
@@ -173,38 +175,49 @@ class CnSQLite:
                 cur = self.connection.cursor()
                 cur.execute(
                     """
-
+                    CREATE TABLE IF NOT EXISTS alphabet(
+                       char_id INTEGER PRIMARY KEY,
+                       char TEXT,
+                       frequency_in_lang FLOAT);
                     """
                 )
                 self.connection.commit()
+                print(f'TABLE ALPHABET CREATED')
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def update_alphabet_table(self):
+    def insert_alphabet_chars(self, alphabet_dict):
         with self.connection:
             try:
                 cur = self.connection.cursor()
-                cur.execute(
+                cur.executemany(
                     """
-
-                    """
+                    INSERT OR IGNORE INTO alphabet(char) VALUES(?);
+                    """, alphabet_dict
                 )
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def get_alphabet_table(self):
+    def update_alphabet_frequency(self, alphabet_dict):
         with self.connection:
             try:
+                ic(alphabet_dict)
                 cur = self.connection.cursor()
-                cur.execute(
+                cur.executemany(
                     """
-
-                    """
+                    UPDATE alphabet SET frequency_in_lang=? WHERE char=?;
+                    """, (alphabet_dict[1],alphabet_dict[0])
                 )
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
+
+    def select_alphabet_chars(self):
+        read_query = """
+            SELECT char FROM alphabet
+        """
+        return convert_tuples_list_to_string_list(self.execute_read_query(read_query))
 
     # LEXEMS TABLE
 
@@ -250,7 +263,8 @@ class CnSQLite:
     ###########
 
     def db_test(self):
-        self.create_language_table()
+        # self.create_language_table()
+        self.create_alphabet_table()
 
 
 def convert_tuples_list_to_string_list(tuples_list):
@@ -258,6 +272,7 @@ def convert_tuples_list_to_string_list(tuples_list):
     for record in list(tuples_list):
         string_list.append(list(record)[0])
     return string_list
+
 
 db = CnSQLite('cn_sqlite/crazynames.sqlite')
 # db.db_test()
