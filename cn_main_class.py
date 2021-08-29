@@ -49,6 +49,16 @@ class CrazyName:
         # ic(formatted_alphabet)
         self.db.insert_alphabet_chars(formatted_alphabet)
 
+    def update_lexems_table(self):
+        formatted_lexems_dict_to_update = []
+        for twin in self.twins_dict:
+            formatted_lexems_dict_to_update.append((self.twins_dict[twin], 2, twin,))
+            pass
+        for trine in self.trines_dict:
+            formatted_lexems_dict_to_update.append((self.trines_dict[trine], 3, trine,))
+            pass
+        self.db.update_lexems_table(formatted_lexems_dict_to_update)
+
     # COLLECTING
 
     def collect_lang_lexems(self, strafe):
@@ -111,11 +121,12 @@ class CrazyName:
             char_percentage = self.alphabet_stats[char] / (alphabet_stats_total_count / 100)
             self.alphabet_stats.update({char: char_percentage})
 
-        formatted_alphabet = list(map(lambda x: tuple([x[0], x[1]]), self.alphabet_stats))
+        formatted_alphabet = list(map(lambda x, y:
+                                      (y, x,),
+                                      self.alphabet_stats.keys(),
+                                      self.alphabet_stats.values()))
 
         self.db.update_alphabet_frequency(formatted_alphabet)
-
-        # print(f'ALPHA STATS:\n{self.alphabet_stats}')
 
         for word in self.language_list:
             average_frequency_in_word = 0
@@ -138,11 +149,20 @@ class CrazyName:
                 self.trines_dict[trine] = self.trines_list.count(trine)
         # print(self.trines_dict)
 
+        formatted_lexems_dict_to_insert = []
+        for twin in self.twins_dict:
+            formatted_lexems_dict_to_insert.append((twin, self.twins_dict[twin], 2,))
+            pass
+        for trine in self.trines_dict:
+            formatted_lexems_dict_to_insert.append((trine, self.trines_dict[trine], 3,))
+            pass
+        self.db.insert_lexems(formatted_lexems_dict_to_insert)
+
     def normalize_lang_lexems_dicts(self, normal):
         for twin in self.twins_dict:
             if self.twins_dict[twin] > normal:
                 self.twins_dict[twin] = self.twins_dict[twin] // 3
-
+        self.update_lexems_table()
     # INIT
 
     def init_language_list(self):
@@ -168,6 +188,8 @@ class CrazyName:
         self.calculate_lang_lexems_frequency()
 
         self.normalize_lang_lexems_dicts(100)
+
+        ic(self.db.select_lexem_value('as', 'lexem_count_in_language'))
 
     # bulk check
 

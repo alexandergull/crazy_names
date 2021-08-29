@@ -33,7 +33,6 @@ class CnSQLite:
             path - path to sqlite database
         """
         try:
-            ic()
             self.connection = sqlite3.connect(path)
             print("Connection to SQLite DB successful")
         except Error as e:
@@ -202,12 +201,11 @@ class CnSQLite:
     def update_alphabet_frequency(self, alphabet_dict):
         with self.connection:
             try:
-                ic(alphabet_dict)
                 cur = self.connection.cursor()
                 cur.executemany(
                     """
                     UPDATE alphabet SET frequency_in_lang=? WHERE char=?;
-                    """, (alphabet_dict[1],alphabet_dict[0])
+                    """, alphabet_dict
                 )
                 self.connection.commit()
             except Error as e:
@@ -227,35 +225,59 @@ class CnSQLite:
                 cur = self.connection.cursor()
                 cur.execute(
                     """
-
+                    CREATE TABLE IF NOT EXISTS lexems(
+                       lexem_id INTEGER PRIMARY KEY,
+                       lexem TEXT,
+                       lexem_length INTEGER,
+                       lexem_count_in_language INTEGER);
                     """
                 )
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def update_lexems_table(self):
+    def insert_lexems(self, lexems_list):
+        """
+
+        :param lexems_list: lexem,lexem_length,lexem_count_in_language
+        :return:
+        """
         with self.connection:
             try:
                 cur = self.connection.cursor()
-                cur.execute(
+                cur.executemany(
                     """
-
-                    """
+                    INSERT OR IGNORE INTO lexems(lexem,lexem_count_in_language,lexem_length) VALUES(?,?,?);
+                    """, lexems_list
                 )
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
 
-    def get_lexems_table(self):
+    def update_lexems_table(self, lexems_list):
+        """
+        :param lexems_list: [tuple(lexem_count_in_language,lexem_length,lexem)]
+        :return:
+        """
         with self.connection:
             try:
                 cur = self.connection.cursor()
-                cur.execute(
+                cur.executemany(
                     """
-
-                    """
+                    UPDATE lexems SET lexem_count_in_language=?,lexem_length=? WHERE lexem=?;
+                    """, lexems_list
                 )
+                self.connection.commit()
+            except Error as e:
+                print(f"The error '{e}' occurred")
+
+    def select_lexem_value(self, lexem: str, value_name):
+        with self.connection:
+            try:
+                query = "SELECT " + value_name + " FROM lexems where lexem='" + lexem + "'"
+                ic(query)
+                cur = self.connection.cursor()
+                cur.execute(query)
                 self.connection.commit()
             except Error as e:
                 print(f"The error '{e}' occurred")
@@ -264,7 +286,9 @@ class CnSQLite:
 
     def db_test(self):
         # self.create_language_table()
-        self.create_alphabet_table()
+        # self.create_alphabet_table()
+        # self.create_lexems_table()
+        pass
 
 
 def convert_tuples_list_to_string_list(tuples_list):
@@ -275,4 +299,4 @@ def convert_tuples_list_to_string_list(tuples_list):
 
 
 db = CnSQLite('cn_sqlite/crazynames.sqlite')
-# db.db_test()
+db.db_test()
