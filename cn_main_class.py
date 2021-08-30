@@ -38,7 +38,7 @@ class CrazyName:
         for dict_word in clear_list:
             result = dict_word.replace('\n', '')
             if result != '':
-                self.db.insert_language_words(result)
+                self.db.insert_language_word(result)
 
     def add_alphabet_to_db(self):
         alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -168,10 +168,9 @@ class CrazyName:
     def init_language_list(self):
         self.language_list = self.db.select_language_words()
         print(f'WORDS COUNT IN LANGUAGE DB:{len(self.language_list)}')
-        # print(f'LANGUAGE LIST DB:\n{self.language_list}')
 
     def init_data(self):
-        # if needs to update DB
+        # if needs to update language DB
         # self.add_dictionary_file_to_db()
 
         # init language from db
@@ -188,8 +187,6 @@ class CrazyName:
         self.calculate_lang_lexems_frequency()
 
         self.normalize_lang_lexems_dicts(100)
-
-        ic(self.db.select_lexem_value('as', 'lexem_count_in_language'))
 
     # bulk check
 
