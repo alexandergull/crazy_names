@@ -19,7 +19,7 @@ class CrazyName:
         self.input_list_counters = {}
         self.alphabet = []
         self.alphabet_stats = {}
-        self.word_chars_average_frequency = 0
+        self.language_chars_average_frequency = 0
         self.db = cn_sqlite.db
 
     # DATABASE PART
@@ -103,7 +103,7 @@ class CrazyName:
 
         self.alphabet_stats = {}
 
-        self.alphabet = self.db.select_alphabet_chars()
+        self.alphabet = self.db.select_all_alphabet_chars()
 
         for word in self.language_list:
             for char in word:
@@ -134,8 +134,8 @@ class CrazyName:
                 if char in self.alphabet:
                     average_frequency_in_word += self.alphabet_stats[char]
             # print(f'{word}:{average_frequency_in_word}')
-            self.word_chars_average_frequency += average_frequency_in_word
-        self.word_chars_average_frequency = self.word_chars_average_frequency / len(self.language_list)
+            self.language_chars_average_frequency += average_frequency_in_word
+        self.language_chars_average_frequency = self.language_chars_average_frequency / len(self.language_list)
         # print('AVERAGE ALPHABETIC FREQ', self.word_chars_average_frequency)
 
     def calculate_lang_lexems_frequency(self):
@@ -214,7 +214,7 @@ class CrazyName:
                             self.language_list,
                             self.alphabet,
                             self.alphabet_stats,
-                            self.word_chars_average_frequency,
+                            self.language_chars_average_frequency,
                             self.sensitivity
                             )
 

@@ -117,8 +117,12 @@ class CnSQLite:
         query = "UPDATE alphabet SET frequency_in_lang=? WHERE char=?;"
         self.executemany_query(query, alphabet_dict)
 
-    def select_alphabet_chars(self):
+    def select_all_alphabet_chars(self):
         read_query = "SELECT char FROM alphabet"
+        return convert_tuples_list_to_string_list(self.select_query(read_query))
+
+    def select_alphabet_char_frequency(self, char):
+        read_query = "SELECT frequency_in_lang FROM alphabet WHERE char='" + char + "'"
         return convert_tuples_list_to_string_list(self.select_query(read_query))
 
     # LEXEMS TABLE
