@@ -1,5 +1,6 @@
-from cn_word import Word
+from cn_word import WordDB
 import cn_sqlite
+import time
 from icecream import ic
 
 
@@ -163,6 +164,7 @@ class CrazyName:
             if self.twins_dict[twin] > normal:
                 self.twins_dict[twin] = self.twins_dict[twin] // 3
         self.update_lexems_table()
+
     # INIT
 
     def init_language_list(self):
@@ -170,32 +172,28 @@ class CrazyName:
         print(f'WORDS COUNT IN LANGUAGE DB:{len(self.language_list)}')
 
     def init_data(self):
-        # if needs to update language DB
-        # self.add_dictionary_file_to_db()
 
         # init language from db
         self.init_language_list()
-
+        # if needs to update language DB
         # collect lexems with strafes
-        self.collect_lang_lexems(0)
-        self.collect_lang_lexems(1)
-        self.collect_lang_lexems(2)
+        # self.add_dictionary_file_to_db()
+        # self.collect_lang_lexems(0)
+        # self.collect_lang_lexems(1)
+        # self.collect_lang_lexems(2)
+        # self.calculate_lang_lexems_frequency()
+        # self.normalize_lang_lexems_dicts(100)
 
         # collect alphabet
         self.calculate_lang_alphabetic_frequency()
-
-        self.calculate_lang_lexems_frequency()
-
-        self.normalize_lang_lexems_dicts(100)
 
     # bulk check
 
     def bulk_check_words_from_file(self, filepath):
         file = open(filepath, 'r', encoding='UTF-8')
-        word_list = []
         while True:
             line = file.readline()
-            self.word_input_list.append(Word(line.lower()))
+            self.word_input_list.append(WordDB(line.lower()))
             if not line:
                 break
         file.close()
@@ -205,18 +203,11 @@ class CrazyName:
         self.bulk_check_file_filtration()
 
         print(f'WORDS COUNT FILTERED:{len(self.word_input_list)}')
-
+        start = time.time()
         for word in self.word_input_list:
-            word.check_word(self.twins_dict,
-                            self.trines_dict,
-                            self.twin_multiplier,
-                            self.trine_multiplier,
-                            self.language_list,
-                            self.alphabet,
-                            self.alphabet_stats,
-                            self.language_chars_average_frequency,
-                            self.sensitivity
-                            )
+
+            word.check_word_db(self)
+            ic(time.time() - start)
 
     def bulk_check_file_filtration(self):
         buffer_list = []
@@ -257,10 +248,12 @@ class CrazyName:
 
             if word.lexems_amount > self.sensitivity:
                 if show_odds_only != 1:
-                    word.report_word()
+                    pass
+                    # word.report_word()
             else:
                 if word.lexems_amount > amount_gain_to_show:
-                    word.report_word()
+                    pass
+                    # word.report_word()
 
         words_total = good_words_total + odd_words_total
         percentage = odd_words_total / (words_total / 100)

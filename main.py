@@ -6,7 +6,7 @@ from cn_main_class import CrazyName
 # TODO API method
 
 
-CONSOLE = 1
+CONSOLE = 0
 
 if __name__ == '__main__':
     start_time = time.time()
